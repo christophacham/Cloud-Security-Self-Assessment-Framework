@@ -1,0 +1,36 @@
+name: Convert Markdown to Word
+
+on:
+  push:
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Pandoc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pandoc
+
+    - name: Convert Markdown to Word
+      run: |
+        pandoc README.md -o README.docx
+
+    - name: Commit and Push
+      run: |
+        git config --global user.name "${{ github.actor }}"
+        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        git add README.docx
+        git commit -m "Add generated Word document"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
